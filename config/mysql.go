@@ -12,7 +12,7 @@ func InitMySQL() (*gorm.DB, error) {
     logger := GetLogger("mysql")
 
     // Load .env file
-    err := godotenv.Load("DB.env")
+    err := godotenv.Load("../DB.env")
     if err != nil {
         logger.Errorf("Error loading .env file: %v", err)
         return nil, err
