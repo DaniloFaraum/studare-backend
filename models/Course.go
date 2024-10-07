@@ -14,6 +14,8 @@ type Course struct {
 	Author      string    `gorm:"column:author;type:varchar(100)"`
 	Institution string    `gorm:"column:institution;type:varchar(100)"`
 	IDImage     int       `gorm:"index;column:id_image;type:int"`
+	Image       Image     `gorm:"foreignKey:IDImage;references:ID"`
+	Tags        []Tag     `gorm:"many2many:course_tags"`
 }
 
 type CourseResponse struct {

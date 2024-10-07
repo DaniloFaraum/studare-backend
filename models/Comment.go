@@ -7,6 +7,8 @@ type Comment struct {
 	Content  string `gorm:"column:content;type:varchar(500)"`
 	Likes    int    `gorm:"column:likes;type:int"`
 	Dislikes int    `gorm:"column:dislikes;type:int"`
+	Course   Course `gorm:"foreignKey:IDCourse;references:ID"`
+	User     User   `gorm:"foreignKey:IDUser;references:ID"`
 }
 
 type CommentResponse struct {

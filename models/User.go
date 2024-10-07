@@ -7,6 +7,7 @@ type User struct {
 	ProfilePicture []byte `gorm:"column:profile_picture;type:longblob"`
 	Password       []byte `gorm:"column:password;type:varbinary(255);not null"`
 	RoleID         int    `gorm:"index;column:role_id;type:int;not null"`
+	Role		   Role   `gorm:"foreignKey:RoleID;references:ID"`
 }
 
 type UserResponse struct {
