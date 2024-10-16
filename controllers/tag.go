@@ -40,3 +40,53 @@ func ListTagsController(ctx *gin.Context) {
 	}
 	utils.SendSuccess(ctx, "list-tags", tags)
 }
+
+func ShowTagController(ctx *gin.Context) {
+	id := ctx.Query("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	tag := models.Tag{}
+
+	if err := db.First(&tag, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find tag", err)
+		return
+	}
+
+	utils.SendSuccess(ctx, "show-tag", tag)
+}
+
+func UpdateTagController(ctx *gin.Context) {
+	request := requests.UpdateTagRequest{}
+
+	ctx.BindJSON(&request)
+
+	if err := request.Validate(); err != nil {
+        utils.HandleControllerError(ctx, http.StatusBadRequest, "tag validation error", err)
+		return
+	}
+
+	id := ctx.Query("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	tag := models.Tag{}
+
+	if err := db.First(&tag, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find tag", err)
+		return
+	}
+
+	if request.Name != "" {
+        tag.Name = request.Name
+    }
+
+	if err := db.Save(&tag).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not update tag", err)
+	}
+	utils.SendSuccess(ctx, "update-tag", tag)
+}
