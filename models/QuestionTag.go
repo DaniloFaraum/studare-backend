@@ -1,11 +1,11 @@
 package models
 
 type QuestionTag struct {
-    IDTag      int      `gorm:"primary_key;column:id_tag;type:int;not null"`
-    IDQuestion int      `gorm:"primary_key;column:id_question;type:int;not null"`
+    TagID      int `gorm:"primaryKey;column:tag_id;not null"`
+    QuestionID int `gorm:"primaryKey;column:question_id;not null"`
 }
 
 type QuestionTagResponse struct {
-    IDTag      int `json:"id_tag"`
-    IDQuestion int `json:"id_question"`
+    TagID      int `json:"tag_id"`
+    QuestionID int `json:"question_id"`
 }

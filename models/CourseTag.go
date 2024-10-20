@@ -1,12 +1,12 @@
 package models
 
 type CourseTag struct {
-    IDCourse int    `gorm:"primary_key;column:id_course;type:int;not null"`
-    IDTag    int    `gorm:"primary_key;column:id_tag;type:int;not null"`
+    TagID    int `gorm:"primaryKey;column:tag_id;not null"`
+    CourseID int `gorm:"primaryKey;column:course_id;not null"`
 }
 
 type CourseTagResponse struct {
-    IDCourse int `json:"id_course"`
-    IDTag    int `json:"id_tag"`
+    TagID    int `json:"tag_id"`
+    CourseID int `json:"course_id"`
     Votes    int `json:"votes"`
 }
