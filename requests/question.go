@@ -7,7 +7,7 @@ import (
 type CreateQuestionRequest struct {
 	Name            string `json:"name"`
 	IDQuestionnaire int    `json:"id_questionnaire"`
-	Question        string `json:"question"`
+	Text            string `json:"question"`
 }
 
 func (r *CreateQuestionRequest) Validate() error {
@@ -18,11 +18,11 @@ func (r *CreateQuestionRequest) Validate() error {
 }
 
 type UpdateQuestionRequest struct {
-	Name string `json:"name"`
+	Text string `json:"name"`
 }
 
 func (r *UpdateQuestionRequest) Validate() error {
-	if r.IDQuestionnaire != nil {
+	if r.Text != "" {
 		return nil
 	}
 

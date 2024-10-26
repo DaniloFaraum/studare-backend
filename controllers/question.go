@@ -20,7 +20,8 @@ func CreateQuestionController(ctx *gin.Context) {
     }
 
     question := models.Question{
-        //completar
+        IDQuestionnaire: request.IDQuestionnaire,
+		Text: request.Text,
     }
 
     if err := db.Create(&question).Error; err != nil {
@@ -33,12 +34,23 @@ func CreateQuestionController(ctx *gin.Context) {
 
 func ListQuestionsController(ctx *gin.Context) {
 	var questions []models.Question
+    var questionResponses []models.QuestionResponse
 
-	if err := db.Find(&questions).Error; err!=nil{
-		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find questions", err)
-		return
-	}
-	utils.SendSuccess(ctx, "list-questions", questions)
+    if err := db.Find(&questions).Error; err != nil {
+        utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find questions", err)
+        return
+    }
+
+    for _, question := range questions {
+        questionResponses = append(questionResponses, models.QuestionResponse{
+			ID: question.ID,
+			IDQuestionnaire: question.IDQuestionnaire,
+			Text: question.Text,
+        })
+    }
+
+    utils.SendSuccess(ctx, "list-questions", questionResponses)
+	
 }
 
 func ShowQuestionController(ctx *gin.Context) {
@@ -81,8 +93,8 @@ func UpdateQuestionController(ctx *gin.Context) {
 		return
 	}
 
-	if request.Name != "" {
-        //uuuu
+	if request.Text != "" {
+		question.Text = request.Text
     }
 
 	if err := db.Save(&question).Error; err!=nil{

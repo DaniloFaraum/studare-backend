@@ -33,12 +33,22 @@ func CreateTagController(ctx *gin.Context) {
 
 func ListTagsController(ctx *gin.Context) {
 	var tags []models.Tag
+    var tagResponses []models.TagResponse
 
-	if err := db.Find(&tags).Error; err!=nil{
-		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find tags", err)
-		return
-	}
-	utils.SendSuccess(ctx, "list-tags", tags)
+    if err := db.Find(&tags).Error; err != nil {
+        utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find tags", err)
+        return
+    }
+
+    for _, tag := range tags {
+        tagResponses = append(tagResponses, models.TagResponse{
+            ID:   tag.ID,
+            Name: tag.Name,
+        })
+    }
+
+    utils.SendSuccess(ctx, "list-tags", tagResponses)
+	
 }
 
 func ShowTagController(ctx *gin.Context) {
