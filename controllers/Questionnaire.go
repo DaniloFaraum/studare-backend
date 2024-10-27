@@ -100,7 +100,6 @@ func UpdateQuestionnaireController(ctx *gin.Context) {
         return
     }
 
-    questionnaire.IDUser = request.IDUser
     questionnaire.Name = request.Name
     questionnaire.Ready = request.Ready
 

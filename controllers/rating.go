@@ -101,6 +101,10 @@ func UpdateRatingController(ctx *gin.Context) {
         rating.Commentary = request.Commentary
     }
 
+	if request.Opinion != 0 {
+		rating.Opinion = request.Opinion
+	}
+
     if err := db.Save(&rating).Error; err != nil {
         utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not update rating", err)
     }

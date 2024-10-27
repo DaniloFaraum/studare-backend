@@ -23,7 +23,6 @@ func CreateCourseController(ctx *gin.Context) {
 		Name: request.Name,
 		Description: request.Description,
 		Link: request.Link,
-		Rating: request.Rating,
 		Duration: request.Duration,
 		Author: request.Author,
 		Institution: request.Institution,
@@ -112,16 +111,12 @@ func UpdateCourseController(ctx *gin.Context) {
         course.Description = request.Description
     case request.Link != "":
         course.Link = request.Link
-    case request.Rating != 0:
-        course.Rating = request.Rating
-    case request.Duration != "":
+    case !request.Duration.IsZero() :
         course.Duration = request.Duration
     case request.Author != "":
         course.Author = request.Author
     case request.Institution != "":
         course.Institution = request.Institution
-    case request.IDImage != 0:
-        course.IDImage = request.IDImage
     }
 
     if err := db.Save(&course).Error; err != nil {
