@@ -25,7 +25,7 @@ type UpdateAnswerRequest struct {
 
 func (r *UpdateAnswerRequest) Validate() error {
     if r.Text != "" {
-        return utils.ErrParamIsrequired("text", "string")
+        return nil
     }
     return utils.ErrNoValidFields()
 }
