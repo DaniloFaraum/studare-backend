@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func ErrParamIsrequired(name string, typ string) error {
@@ -33,6 +34,10 @@ func SendSuccess(ctx *gin.Context, op string, data interface{}) {
 }
 
 func HandleControllerError(ctx *gin.Context, statusCode int, userMessage string, err error) {
-	logger.Errorf("%s: %v", userMessage, err.Error())
-	SendError(ctx, statusCode, userMessage)
+	if err == gorm.ErrRecordNotFound {
+		SendError(ctx, http.StatusNotFound, userMessage)
+	} else {
+		logger.Errorf("%s: %v", userMessage, err.Error())
+		SendError(ctx, statusCode, userMessage)
+	}
 }
