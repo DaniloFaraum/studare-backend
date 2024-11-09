@@ -1,7 +1,6 @@
 package requests
 
 import (
-	"errors"
 	"time"
 
 	"github.com/DaniloFaraum/studere-backend/utils"
@@ -20,19 +19,19 @@ type CreateCourseRequest struct {
 func (r *CreateCourseRequest) Validate() error {
 	switch {
 	case r.Name == "":
-		return errors.New("name is required")
+		return utils.ErrParamIsrequired("name", "string")
 	case r.Description == "":
-		return errors.New("description is required")
+		return utils.ErrParamIsrequired("desciption", "string")
 	case r.Link == "":
-		return errors.New("link is required")
+		return utils.ErrParamIsrequired("link", "string")
 	case r.Duration.IsZero():
-		return errors.New("duration is required")
+		return utils.ErrParamIsrequired("duration", "time")
 	case r.Author == "":
-		return errors.New("author is required")
+		return utils.ErrParamIsrequired("author", "string")
 	case r.Institution == "":
-		return errors.New("institution is required")
+		return utils.ErrParamIsrequired("institution", "string")
 	case r.IDImage == 0:
-		return errors.New("id_image is required")
+		return utils.ErrParamIsrequired("id_image", "int")
 	}
 
 	return nil
@@ -48,7 +47,7 @@ type UpdateCourseRequest struct {
 }
 
 func (r *UpdateCourseRequest) Validate() error {
-	if r.Name != "" || r.Description != "" || r.Link != "" || !r.Duration.IsZero() || r.Author != "" || r.Institution != ""{
+	if r.Name != "" || r.Description != "" || r.Link != "" || !r.Duration.IsZero() || r.Author != "" || r.Institution != "" {
 		return nil
 	}
 
