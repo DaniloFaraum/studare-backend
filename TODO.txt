@@ -1,3 +1,7 @@
 Fix all img related stuff latter after encryption implemetention:
     Image
     User
+
+Gorm generating wrong sql in list controllers "WHERE all"
+
+Unkown logic error in login operation (its not the .env file)
