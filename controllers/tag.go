@@ -52,7 +52,7 @@ func ListTagsController(ctx *gin.Context) {
 }
 
 func ShowTagController(ctx *gin.Context) {
-	id := ctx.Query("id")
+	id := ctx.Param("id")
 	if id == ""{
 		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
 		return
@@ -78,7 +78,7 @@ func UpdateTagController(ctx *gin.Context) {
 		return
 	}
 
-	id := ctx.Query("id")
+	id := ctx.Param("id")
 	if id == ""{
 		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
 		return
@@ -99,4 +99,26 @@ func UpdateTagController(ctx *gin.Context) {
 		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not update tag", err)
 	}
 	utils.SendSuccess(ctx, "update-tag", tag)
+}
+
+func DeleteTagController(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	tag := models.Tag{}
+
+	if err := db.First(&tag, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find tag", err)
+		return
+	}
+
+	if err := db.Delete(&tag).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not delete tag", err)
+		return
+	}
+
+	utils.SendSuccess(ctx, "delete-tag", tag)
 }

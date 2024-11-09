@@ -50,8 +50,9 @@ func ListImagesController(ctx *gin.Context) {
     utils.SendSuccess(ctx, "list-images", imageResponses)
 }
 
+
 func ShowImageController(ctx *gin.Context) {
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -65,4 +66,26 @@ func ShowImageController(ctx *gin.Context) {
     }
 
     utils.SendSuccess(ctx, "show-image", image)
+}
+
+func DeleteImageController(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	image := models.Image{}
+
+	if err := db.First(&image, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find image", err)
+		return
+	}
+
+	if err := db.Delete(&image).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not delete image", err)
+		return
+	}
+
+	utils.SendSuccess(ctx, "delete-image", image)
 }

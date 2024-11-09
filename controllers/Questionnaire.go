@@ -55,7 +55,7 @@ func ListQuestionnairesController(ctx *gin.Context) {
 }
 
 func ShowQuestionnaireController(ctx *gin.Context) {
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -80,7 +80,7 @@ func ShowQuestionnaireController(ctx *gin.Context) {
 }
 
 func UpdateQuestionnaireController(ctx *gin.Context) {
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -109,4 +109,26 @@ func UpdateQuestionnaireController(ctx *gin.Context) {
     }
 
     utils.SendSuccess(ctx, "update-questionnaire", request)
+}
+
+func DeleteQuestionnaireController(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	questionnaire := models.Questionnaire{}
+
+	if err := db.First(&questionnaire, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find questionnaire", err)
+		return
+	}
+
+	if err := db.Delete(&questionnaire).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not delete questionnaire", err)
+		return
+	}
+
+	utils.SendSuccess(ctx, "delete-questionnaire", questionnaire)
 }

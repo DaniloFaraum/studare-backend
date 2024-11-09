@@ -54,7 +54,7 @@ func ListQuestionsController(ctx *gin.Context) {
 }
 
 func ShowQuestionController(ctx *gin.Context) {
-	id := ctx.Query("id")
+	id := ctx.Param("id")
 	if id == ""{
 		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
 		return
@@ -80,7 +80,7 @@ func UpdateQuestionController(ctx *gin.Context) {
 		return
 	}
 
-	id := ctx.Query("id")
+	id := ctx.Param("id")
 	if id == ""{
 		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
 		return
@@ -101,4 +101,26 @@ func UpdateQuestionController(ctx *gin.Context) {
 		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not update question", err)
 	}
 	utils.SendSuccess(ctx, "update-question", question)
+}
+
+func DeleteQuestionController(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	question := models.Question{}
+
+	if err := db.First(&question, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find question", err)
+		return
+	}
+
+	if err := db.Delete(&question).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not delete question", err)
+		return
+	}
+
+	utils.SendSuccess(ctx, "delete-question", question)
 }

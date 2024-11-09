@@ -57,7 +57,7 @@ func ListCommentsController(ctx *gin.Context) {
 }
 
 func ShowCommentController(ctx *gin.Context) {
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -83,7 +83,7 @@ func UpdateCommentController(ctx *gin.Context) {
         return
     }
 
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -105,4 +105,26 @@ func UpdateCommentController(ctx *gin.Context) {
         utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not update comment", err)
     }
     utils.SendSuccess(ctx, "update-comment", comment)
+}
+
+func DeleteCommentController(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	comment := models.Comment{}
+
+	if err := db.First(&comment, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find comment", err)
+		return
+	}
+
+	if err := db.Delete(&comment).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not delete comment", err)
+		return
+	}
+
+	utils.SendSuccess(ctx, "delete-comment", comment)
 }

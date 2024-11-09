@@ -57,7 +57,7 @@ func ListRatingsController(ctx *gin.Context) {
 }
 
 func ShowRatingController(ctx *gin.Context) {
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -83,7 +83,7 @@ func UpdateRatingController(ctx *gin.Context) {
         return
     }
 
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -109,4 +109,26 @@ func UpdateRatingController(ctx *gin.Context) {
         utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not update rating", err)
     }
     utils.SendSuccess(ctx, "update-rating", rating)
+}
+
+func DeleteRatingController(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	rating := models.Rating{}
+
+	if err := db.First(&rating, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find rating", err)
+		return
+	}
+
+	if err := db.Delete(&rating).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not delete rating", err)
+		return
+	}
+
+	utils.SendSuccess(ctx, "delete-rating", rating)
 }

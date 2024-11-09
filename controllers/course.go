@@ -64,7 +64,7 @@ func ListCoursesController(ctx *gin.Context) {
 }
 
 func ShowCourseController(ctx *gin.Context) {
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -90,7 +90,7 @@ func UpdateCourseController(ctx *gin.Context) {
         return
     }
 
-    id := ctx.Query("id")
+    id := ctx.Param("id")
     if id == "" {
         utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id", "queryParam").Error())
         return
@@ -123,4 +123,26 @@ func UpdateCourseController(ctx *gin.Context) {
         utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not update course", err)
     }
     utils.SendSuccess(ctx, "update-course", course)
+}
+
+func DeleteCourseController(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == ""{
+		utils.SendError(ctx, http.StatusBadRequest, utils.ErrParamIsrequired("id","queryParam").Error())
+		return
+	}
+
+	course := models.Course{}
+
+	if err := db.First(&course, id).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find course", err)
+		return
+	}
+
+	if err := db.Delete(&course).Error; err!=nil{
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not delete course", err)
+		return
+	}
+
+	utils.SendSuccess(ctx, "delete-course", course)
 }
