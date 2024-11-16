@@ -6,6 +6,7 @@ import (
     "github.com/DaniloFaraum/studere-backend/models"
     "github.com/DaniloFaraum/studere-backend/requests"
     "github.com/DaniloFaraum/studere-backend/utils"
+    "github.com/DaniloFaraum/studere-backend/domain"
     "github.com/gin-gonic/gin"
 )
 
@@ -20,14 +21,29 @@ func CreateRatingController(ctx *gin.Context) {
     }
 
     rating := models.Rating{
-		IDUser:    request.IDUser,
-		IDCourse:  request.IDCourse,
-		Opinion:   request.Opinion,
-		Commentary: request.Commentary,
+        IDUser:    request.IDUser,
+        IDCourse:  request.IDCourse,
+        Opinion:   request.Opinion,
+        Commentary: request.Commentary,
     }
 
     if err := db.Create(&rating).Error; err != nil {
         utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not create rating on db", err)
+        return
+    }
+
+    // Calculate the new rating for the course
+    var positiveReviews int64
+    var totalReviews int64
+
+    db.Model(&models.Rating{}).Where("id_course = ? AND opinion = ?", request.IDCourse, 1).Count(&positiveReviews)
+    db.Model(&models.Rating{}).Where("id_course = ?", request.IDCourse).Count(&totalReviews)
+
+    newRating := domain.CalculateRating(int(positiveReviews), int(totalReviews))
+
+    // Update the course with the new rating
+    if err := db.Model(&models.Course{}).Where("id = ?", request.IDCourse).Update("rating", newRating).Error; err != nil {
+        utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not update course rating", err)
         return
     }
 

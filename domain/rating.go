@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func calculateRating(positiveReviews, totalReviews int) float64 {
+func CalculateRating(positiveReviews, totalReviews int) float64 {
 	if totalReviews == 0 {
 		return 0
 	}
