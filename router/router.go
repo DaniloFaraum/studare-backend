@@ -1,9 +1,14 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/DaniloFaraum/studere-backend/config"
+	"github.com/gin-gonic/gin"
+)
 
 func Initialize() {
 	router := gin.Default() //Creates router from gin library
+
+	router.Use(config.SetupCORS())
 
 	InitializeRoutes(router)
 
