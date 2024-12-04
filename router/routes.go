@@ -12,7 +12,6 @@ func InitializeRoutes(router *gin.Engine) {
 	{
 		registerRoutes(v1, "answers", controllers.ListAnswersController, controllers.ShowAnswerController, controllers.CreateAnswerController, controllers.UpdateAnswerController, controllers.DeleteAnswerController)
 		registerRoutes(v1, "comments", controllers.ListCommentsController, controllers.ShowCommentController, controllers.CreateCommentController, controllers.UpdateCommentController, controllers.DeleteCommentController)
-		registerRoutes(v1, "courses", controllers.ListCoursesController, controllers.ShowCourseController, controllers.CreateCourseController, controllers.UpdateCourseController, controllers.DeleteCourseController)
 		//registerRoutes(v1, "courseTags", controllers.ListCourseTagController, controllers.ShowCourseTagController, controllers.CreateCourseTagController, controllers.UpdateCourseTagController, controllers.DeleteCourseTagController)
 		registerRoutes(v1, "questions", controllers.ListQuestionsController, controllers.ShowQuestionController, controllers.CreateQuestionController, controllers.UpdateQuestionController, controllers.DeleteQuestionController)
 		registerRoutes(v1, "questionnaires", controllers.ListQuestionnairesController, controllers.ShowQuestionnaireController, controllers.CreateQuestionnaireController, controllers.UpdateQuestionnaireController, controllers.DeleteQuestionnaireController)
@@ -34,6 +33,16 @@ func InitializeRoutes(router *gin.Engine) {
 			userRoutes.POST("/", controllers.CreateUserController)
 			userRoutes.PUT("/:id", controllers.UpdateUserController)
 			userRoutes.POST("/login", controllers.Login)
+		}
+		courseRoutes := v1.Group("/courses")
+		{
+			courseRoutes.GET("/all", controllers.ListCoursesController)
+			courseRoutes.GET("/:id", controllers.ShowCourseController)
+			courseRoutes.POST("/", controllers.CreateCourseController)
+			courseRoutes.PUT("/:id", controllers.UpdateCourseController)
+			courseRoutes.DELETE("/:id", controllers.DeleteCourseController)
+			courseRoutes.GET("/search", controllers.SearchCoursesController)
+			courseRoutes.GET("/random/:quantity", controllers.RandomCourseController)
 		}
 	}
 }

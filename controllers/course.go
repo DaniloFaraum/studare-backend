@@ -112,7 +112,7 @@ func UpdateCourseController(ctx *gin.Context) {
 		course.Description = request.Description
 	case request.Link != "":
 		course.Link = request.Link
-	case !request.Duration.IsZero():
+	case request.Duration != 0:
 		course.Duration = request.Duration
 	case request.Author != "":
 		course.Author = request.Author
@@ -148,15 +148,19 @@ func DeleteCourseController(ctx *gin.Context) {
 	utils.SendSuccess(ctx, "delete-course", course)
 }
 
-func SearchByName(ctx *gin.Context) {
+func SearchCoursesController(ctx *gin.Context) {
 	name := ctx.Query("name")
 	ratingStr := ctx.Query("rating")
 	durationStr := ctx.Query("duration")
-	author := ctx.Query("author")
+	tags := ctx.QueryArray("tags")
+	pageStr := ctx.DefaultQuery("page", "1")
+	limitStr := ctx.DefaultQuery("limit", "10")
 
-	var rating, duration float64
+	var rating float64
+	var duration int64
 	var err error
 
+	// Parse rating
 	if ratingStr != "" {
 		rating, err = strconv.ParseFloat(ratingStr, 64)
 		if err != nil {
@@ -165,19 +169,33 @@ func SearchByName(ctx *gin.Context) {
 		}
 	}
 
+	// Parse duration
 	if durationStr != "" {
-		duration, err = strconv.ParseFloat(durationStr, 64)
+		duration, err = strconv.ParseInt(durationStr, 10, 64)
 		if err != nil {
 			utils.SendError(ctx, http.StatusBadRequest, "invalid duration")
 			return
 		}
 	}
 
-	var courses []models.Course
-	query := db.Model(&models.Course{})
+	// Pagination
+	page, _ := strconv.Atoi(pageStr)
+	limit, _ := strconv.Atoi(limitStr)
 
+	// Default pagination values
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+
+	var courses []models.Course
+	query := db.Model(&models.Course{}).Joins("JOIN course_tags ON course_tags.course_id = courses.id").Joins("JOIN tags ON tags.id = course_tags.tag_id")
+
+	// Apply filters
 	if name != "" {
-		query = query.Where("name LIKE ?", "%"+name+"%")
+		query = query.Where("courses.name LIKE ?", "%"+name+"%")
 	}
 	if ratingStr != "" {
 		query = query.Where("rating >= ?", rating)
@@ -185,32 +203,38 @@ func SearchByName(ctx *gin.Context) {
 	if durationStr != "" {
 		query = query.Where("duration <= ?", duration)
 	}
-	if author != "" {
-		query = query.Where("author LIKE ?", "%"+author+"%")
+	if len(tags) > 0 {
+		query = query.Where("tags.name IN ?", tags)
 	}
 
+	// Pagination and limit
+	offset := (page - 1) * limit
+	query = query.Offset(offset).Limit(limit)
+
+	// Execute query
 	if err := query.Find(&courses).Error; err != nil {
 		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find courses", err)
 		return
 	}
 
+	// Return courses
 	utils.SendSuccess(ctx, "search-courses", courses)
 }
 
-func SearchCoursesByTagsController(ctx *gin.Context) {
-    tags := ctx.QueryArray("tags")
+func RandomCourseController(ctx *gin.Context) {
+	quantityStr := ctx.Param("quantity")
+	quantity, err := strconv.Atoi(quantityStr)
+	if err != nil {
+		utils.SendError(ctx, http.StatusBadRequest, "invalid quantity")
+		return
+	}
 
-    var courses []models.Course
-    query := db.Model(&models.Course{}).Joins("JOIN course_tags ON course_tags.course_id = courses.id").Joins("JOIN tags ON tags.id = course_tags.tag_id")
+	var courses []models.Course
 
-    if len(tags) > 0 {
-        query = query.Where("tags.name IN ?", tags)
-    }
+	if err := db.Order("RAND()").Limit(quantity).Find(&courses).Error; err != nil {
+		utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find random courses", err)
+		return
+	}
 
-    if err := query.Find(&courses).Error; err != nil {
-        utils.HandleControllerError(ctx, http.StatusInternalServerError, "could not find courses", err)
-        return
-    }
-
-    utils.SendSuccess(ctx, "search-courses-by-tags", courses)
+	utils.SendSuccess(ctx, "random-courses", courses)
 }
