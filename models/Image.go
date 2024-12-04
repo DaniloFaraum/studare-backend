@@ -6,7 +6,6 @@ type Image struct {
 }
 
 type ImageResponse struct {
-	Name           string `json:"name"`
 	ID             int    `json:"id"`
 	EncryptedImage []byte `json:"encrypted_image"`
 }
